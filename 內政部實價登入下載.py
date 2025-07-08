@@ -6,7 +6,7 @@ years = list(range(107, 115))  # 可依需要擴充
 seasons = ['S1', 'S2', 'S3', 'S4']  # 四季
 
 # 建立資料夾
-save_dir = 'C:\\Project\\land_data'
+save_dir = 'C:\\Users\\Tulacu-2021\\Desktop\\專題\\專題資料-內政部'
 os.makedirs(save_dir, exist_ok=True)
 
 # 開始下載
