@@ -12,7 +12,7 @@ db_name = 'houses'
 table_name = 'buydata'
 
 # 資料夾設定
-root_folder = r"C:\Project\land_data_cleaned\買賣"
+root_folder = r"C:\Users\Tulacu-2021\Desktop\專題\專題資料-內政部-cleannn\買賣"
 log_file_path = os.path.join(root_folder, 'imported_files.txt')
 error_log_path = os.path.join(root_folder, 'import_errors.txt')
 
