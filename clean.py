@@ -2,71 +2,96 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 原始資料夾與清洗後資料夾
-source_root = r'C:\Users\Tulacu-2021\Desktop\專題\專題資料-內政部-clean'
-target_root = r'C:\Users\Tulacu-2021\Desktop\專題\專題資料-內政部-cleannn'
+# 民國轉西元
+def convert_roc_to_ad(date_str):
+    if pd.isna(date_str):
+        return ''
+    date_str = str(date_str).strip()
+    try:
+        if "年" in date_str:
+            parts = date_str.replace("年", "-").replace("月", "-").replace("日", "").split("-")
+            year = int(parts[0]) + 1911
+            month = int(parts[1])
+            day = int(parts[2]) if len(parts) > 2 else 1
+        elif len(date_str) == 7:
+            year = int(date_str[:3]) + 1911
+            month = int(date_str[3:5])
+            day = int(date_str[5:7])
+        elif len(date_str) == 6:
+            year = int(date_str[:2]) + 1911
+            month = int(date_str[2:4])
+            day = int(date_str[4:6])
+        else:
+            return date_str
+        return datetime(year, month, day).strftime("%Y-%m-%d")
+    except:
+        return ''
 
-# 錯誤日誌檔案
-log_path = os.path.join(target_root, 'error_log.txt')
-os.makedirs(target_root, exist_ok=True)  # 確保日誌檔資料夾存在
+# 縣市代碼對照表
+city_map = {
+    'A': '台北市', 'B': '台中市', 'C': '基隆市', 'D': '台南市', 'E': '高雄市',
+    'F': '台北縣', 'G': '宜蘭縣', 'H': '桃園縣', 'J': '新竹縣', 'K': '苗栗縣',
+    'L': '台中縣', 'M': '南投縣', 'N': '彰化縣', 'O': '新竹市', 'P': '雲林縣',
+    'Q': '嘉義縣', 'R': '台南縣', 'S': '高雄縣', 'T': '屏東縣', 'U': '花蓮縣',
+    'V': '台東縣', 'W': '澎湖縣', 'X': '陽明山', 'Y': '金門縣', 'Z': '連江縣'
+}
 
-# 清空舊日誌
-with open(log_path, 'w', encoding='utf-8') as log_file:
-    log_file.write(f"🚨 清洗錯誤紀錄 - 建立於 {datetime.now()}\n\n")
+# 資料夾設定
+source_root = r'C:\Project\land_data'
+target_root = r'C:\Project\land_data_cleaned'
+success_log = []
+error_log = []
 
-print("📂 檢查原始資料夾內容...")
-try:
-    city_folders = os.listdir(source_root)
-    print(f"✅ 找到 {len(city_folders)} 個縣市資料夾：{city_folders}")
-except FileNotFoundError:
-    print(f"❌ 找不到來源資料夾：{source_root}")
-    exit()
+# 遍歷資料夾
+for city in os.listdir(source_root):
+    city_path = os.path.join(source_root, city)
+    if not os.path.isdir(city_path): continue
 
-for city_folder in city_folders:
-    city_path = os.path.join(source_root, city_folder)
-    if not os.path.isdir(city_path):
-        print(f"⚠️ 跳過非資料夾項目：{city_path}")
-        continue
+    for quarter in os.listdir(city_path):
+        quarter_path = os.path.join(city_path, quarter)
+        if not os.path.isdir(quarter_path): continue
 
-    print(f"🏙️ 處理城市：{city_folder}")
-
-    for quarter_folder in os.listdir(city_path):
-        quarter_path = os.path.join(city_path, quarter_folder)
-        if not os.path.isdir(quarter_path):
-            print(f"⚠️ 跳過非季度資料夾：{quarter_path}")
-            continue
-
-        print(f"📅 處理季度：{quarter_folder}")
-
-        # 建立對應的清洗後輸出資料夾
-        output_folder = os.path.join(target_root, city_folder, quarter_folder)
+        output_folder = os.path.join(target_root, city, quarter)
         os.makedirs(output_folder, exist_ok=True)
 
         for filename in os.listdir(quarter_path):
             if not filename.endswith(".csv"):
                 continue
 
-            file_path = os.path.join(quarter_path, filename)
-            print(f"🔍 處理中：{file_path}")
+            input_file = os.path.join(quarter_path, filename)
+            output_file = os.path.join(output_folder, filename)
 
             try:
-                # 讀取 CSV（無標題）
-                df = pd.read_csv(file_path, header=None, skip_blank_lines=True)
-
-                # 將第一列設為欄位名，刪除第二列
+                df = pd.read_csv(input_file, header=None, skip_blank_lines=True, on_bad_lines='skip', encoding='utf-8', engine='python')
                 df.columns = df.iloc[0]
-                df = df.drop(index=[0, 1])
+                df = df.drop([0, 1])
 
-                # 儲存到新位置
-                output_path = os.path.join(output_folder, filename)
-                df.to_csv(output_path, index=False, encoding='utf-8-sig')
+                # 清理特殊字元
+                df.replace({'"': '*', ',': '*', '\n': ' '}, regex=True, inplace=True)
 
-                print(f"✅ 已清洗並儲存：{output_path}")
+                # 日期欄位轉換
+                for col in df.columns:
+                    if '日期' in col or '年月日' in col or '年月' in col:
+                        df[col] = df[col].apply(convert_roc_to_ad)
 
+                # 新增「縣市」欄位
+                city_code = filename[0].upper()
+                city_name = city_map.get(city_code, '未知縣市')
+                df.insert(0, '縣市', city_name)
+
+                df.to_csv(output_file, index=False, encoding='utf-8-sig')
+                success_log.append(f"✅ 成功處理：{input_file}")
+                print(f"✅ 成功處理：{input_file}")
             except Exception as e:
-                error_msg = f"❌ 錯誤處理檔案：{file_path} → {e}"
-                print(error_msg)
-                with open(log_path, 'a', encoding='utf-8') as log_file:
-                    log_file.write(error_msg + '\n')
+                error_log.append(f"❌ 失敗：{input_file} → {e}")
+                print(f"❌ 失敗：{input_file} → {e}")
 
-print(f"\n🎉 所有檔案處理完成！錯誤日誌位於：{log_path}")
+# 儲存紀錄
+os.makedirs(target_root, exist_ok=True)
+with open(os.path.join(target_root, "成功清單.txt"), "w", encoding="utf-8") as f:
+    f.write("\n".join(success_log))
+
+with open(os.path.join(target_root, "錯誤清單.txt"), "w", encoding="utf-8") as f:
+    f.write("\n".join(error_log))
+
+print("\n🎉 所有檔案清洗作業完成！")

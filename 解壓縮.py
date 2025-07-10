@@ -3,9 +3,9 @@ import zipfile
 import re
 
 # 壓縮檔所在資料夾
-zip_folder = r'C:\Users\Tulacu-2021\Desktop\專題\專題資料-內政部'
+zip_folder = r'C:\\Project\\zip'
 # 解壓縮後的根資料夾
-output_root = r'C:\Users\Tulacu-2021\Desktop\專題\專題資料-內政部-clean'
+output_root = r'C:\\Project\\land_data'
 
 # 處理每個 zip 檔
 for zip_file in os.listdir(zip_folder):
