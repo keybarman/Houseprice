@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 8px;
@@ -86,6 +86,13 @@
             margin: 0;
         }
 
+        h5 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0 0 8px 0;
+        }
+
         .tbd-tag {
             display: inline-block;
             background: #e74c3c;
@@ -104,6 +111,17 @@
             border-radius: 6px;
             border-left: 4px solid #3498db;
             margin: 20px 0;
+        }
+
+        .project-title h2 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .project-title h6 {
+            margin: 0;
+            color: #5a6c7d;
+            font-weight: 400;
         }
 
         .project-title p {
@@ -173,6 +191,56 @@
             font-weight: 400;
         }
 
+    
+        .powerbi-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+            background: #f8f9fa;
+        }
+
+        .powerbi-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+
+      
+        ol {
+            list-style: none;
+            counter-reset: item;
+            margin: 20px 0;
+            padding: 0;
+        }
+
+        ol li {
+            counter-increment: item;
+            margin: 0;
+            padding: 0;
+        }
+
+        ol li::before {
+            content: counter(item);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+            position: relative;
+            top: -2px;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 20px 10px;
@@ -180,6 +248,7 @@
             
             .container {
                 padding: 30px 25px;
+                max-width: 100%;
             }
             
             h1 {
@@ -193,6 +262,10 @@
             h3 {
                 font-size: 1.2rem;
                 line-height: 1.4;
+            }
+
+            .powerbi-container {
+                height: 400px;
             }
         }
     </style>
@@ -240,78 +313,63 @@
         
         <div class="section">
             <div class="section-header">
-                <div class="section-number">4</div>
-                <h3>成員</h3>
-            </div>
-            <div class="member-highlight">
-                <p>就只有我</p>
-            </div>
-        </div>
-        
-        <div class="section">
-            <div class="section-header">
                 <div class="section-number">5</div>
                 <h3>分析的預計見解</h3>
             </div>
             <ol>
                 <li>
                     <div class="objective-item">
-                    <p>6都2縣(新竹縣市)的房價所得比和房貸負擔率與成交量之間的比較</p>
+                        <p>6都2縣(新竹縣市)的房價所得比和房貸負擔率與成交量之間的比較</p>
                     </div>
                 </li>
                 <li>
                     <div class="objective-item">
-                    <p>房價與坪數的關係</p>
+                        <p>房價與坪數的關係</p>
                     </div>
                 </li>
-                 <li>
+                <li>
                     <div class="objective-item">
-                    <p>不同職業的房貸負擔率比較</p>
+                        <p>不同職業的房貸負擔率比較</p>
                     </div>
                 </li>
             </ol>
+        </div>
 
-            <div class="section">
+        <div class="section">
             <div class="section-header">
                 <div class="section-number">6</div>
                 <h3>成果展示</h3>
-            <iframe title="房價與薪資" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=2774cbcc-1495-4487-b242-7da0e5598bd1&autoAuth=true&ctid=d30b13de-a85e-43cc-ac92-55332b52c9be" frameborder="0" allowFullScreen="true"></iframe>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
+            </div>
+            <div class="powerbi-container">
+                <iframe title="房價與薪資" src="https://app.powerbi.com/reportEmbed?reportId=2774cbcc-1495-4487-b242-7da0e5598bd1&autoAuth=true&ctid=d30b13de-a85e-43cc-ac92-55332b52c9be" allowFullScreen="true"></iframe>
+            </div>
+        </div>
 
-            <div class="section">
+        <div class="section">
             <div class="section-header">
                 <div class="section-number">7</div>
                 <h3>結論探討</h3>
-                <ol>
-                    <li>
-                        <div class="objective-item">
+            </div>
+            <ol>
+                <li>
+                    <div class="objective-item">
                         <h5>長期房貸將成為新選項：</h5>
-                        <p>雖然房價負擔率很高，不過拉長到30年甚至是40年後，桃園、台南、高雄及台中還是能夠大部分維持在50%以下。隨著近年來房價趨緩，如未來政府推出其他長期房貸利率的補貼政策的話仍然會吸引更多不少名下無房產的人購屋。
-</p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="objective-item">
+                        <p>雖然房價負擔率很高，不過拉長到30年甚至是40年後，桃園、台南、高雄及台中還是能夠大部分維持在50%以下。隨著近年來房價趨緩，如未來政府推出其他長期房貸利率的補貼政策的話仍然會吸引更多不少名下無房產的人購屋。</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="objective-item">
                         <h5>弱勢產業應該要有更多的政策補助:</h5>
-                        <p>以六都就業人口的結構來看，目前台灣的批發零售、製造業、住宿及餐飲業是房貸負擔率相對較高。且就業人口占比較多的一群。因此，政府在居住公平政策中的租屋補貼或是社會住宅可以考慮針對這些較高負擔率產業去支持。
-</p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="objective-item">
+                        <p>以六都就業人口的結構來看，目前台灣的批發零售、製造業、住宿及餐飲業是房貸負擔率相對較高。且就業人口占比較多的一群。因此，政府在居住公平政策中的租屋補貼或是社會住宅可以考慮針對這些較高負擔率產業去支持。</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="objective-item">
                         <h5>房價短期跌幅有限，如要買房需改變策略:</h5>
                         <p>可支配所得雖然有上漲，但房貸負擔率看來並未明顯下降，因此如果有買房的剛性需求，或許轉職到收入較高的職業(資通訊或高科技業)或許是現況唯一妥協的解決方法</p>
-                        </div>
-                    </li>
-                </ol>
-
+                    </div>
+                </li>
+            </ol>
         </div>
     </div>
 </body>
