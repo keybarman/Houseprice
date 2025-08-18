@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import time
 
-# 禁用因忽略SSL驗證而產生的警告訊息
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def find_related_pages(base_url, keyword):
@@ -23,21 +23,19 @@ def find_related_pages(base_url, keyword):
     print(f"正在搜尋 '{base_url}' 網站中包含 '{keyword}' 的頁面...")
     related_urls = set()
     try:
-        # 為了穩定性，我們直接加入已知的相關頁面
-        # 實際應用中，可以擴充此部分來動態搜尋
         print("搜尋完成。將使用內建的已知頁面列表。")
 
     except Exception as e:
         print(f"搜尋時發生錯誤: {e}")
         print("將使用預設的已知 URL 列表。")
 
-    # 將已知的相關 URL 加入集合中，set 會自動處理重複
+
     known_urls = [
-        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=234206", # 111年
-        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=232651", # 110年
-        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=230869", # 109年
-        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=228841", # 108年
-        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=226996", # 107年
+        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=234206",
+        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=232651", 
+        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=230869", 
+        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=228841",
+        "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=226996",
     ]
     for url in known_urls:
         related_urls.add(url)
@@ -58,9 +56,8 @@ def download_files_from_page(page_url, download_folder="薪資統計資料"):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        # --- 修改開始: 加入 verify=False 忽略SSL憑證驗證 ---
+        
         response = requests.get(page_url, headers=headers, timeout=15, verify=False)
-        # --- 修改結束 ---
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -105,27 +102,26 @@ def download_files_from_page(page_url, download_folder="薪資統計資料"):
                 print(f"     正在從 {file_url} 下載...")
                 
                 try:
-                    # --- 修改開始: 加入 verify=False 忽略SSL憑證驗證 ---
                     file_response = requests.get(file_url, headers=headers, timeout=30, verify=False)
-                    # --- 修改結束 ---
+                
                     file_response.raise_for_status()
 
                     with open(local_filepath, 'wb') as f:
                         f.write(file_response.content)
-                    print(f"     ✅ 下載完成，已儲存為: {new_filename}")
+                    print(f" 下載完成，已儲存為: {new_filename}")
                     download_count += 1
                     time.sleep(1)
 
                 except requests.exceptions.RequestException as file_e:
-                    print(f"     ❌ 下載檔案失敗: {file_e}")
+                    print(f"下載檔案失敗: {file_e}")
 
         if download_count == 0:
             print("此頁面所有試算表檔案皆已存在或無新檔案可下載。")
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ 請求頁面失敗: {e}")
+        print(f"請求頁面失敗: {e}")
     except Exception as e:
-        print(f"❌ 處理頁面時發生未預期的錯誤: {e}")
+        print(f"處理頁面時發生未預期的錯誤: {e}")
 
 if __name__ == "__main__":
     SEARCH_KEYWORD = "工業及服務業受僱員工全年總薪資中位數及分布統計結果"

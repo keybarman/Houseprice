@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 民國轉西元
+
 def convert_roc_to_ad(date_str):
     if pd.isna(date_str):
         return ''
@@ -27,7 +27,7 @@ def convert_roc_to_ad(date_str):
     except:
         return ''
 
-# 縣市代碼對照表
+
 city_map = {
     'A': '台北市', 'B': '台中市', 'C': '基隆市', 'D': '台南市', 'E': '高雄市',
     'F': '台北縣', 'G': '宜蘭縣', 'H': '桃園縣', 'I': '嘉義市', 'J': '新竹縣',
@@ -37,13 +37,13 @@ city_map = {
     'Z': '連江縣'
 }
 
-# 資料夾設定
+
 source_root = r'C:\Project\land_data'
 target_root = r'C:\Project\land_data_cleaned'
 success_log = []
 error_log = []
 
-# 遍歷資料夾
+
 for city in os.listdir(source_root):
     city_path = os.path.join(source_root, city)
     if not os.path.isdir(city_path): continue
@@ -67,27 +67,27 @@ for city in os.listdir(source_root):
                 df.columns = df.iloc[0]
                 df = df.drop([0, 1])
 
-                # 清理特殊字元
+                
                 df.replace({'"': '*', ',': '*', '\n': ' '}, regex=True, inplace=True)
 
-                # 日期欄位轉換
+                
                 for col in df.columns:
                     if '日期' in col or '年月日' in col or '年月' in col:
                         df[col] = df[col].apply(convert_roc_to_ad)
 
-                # 新增「縣市」欄位
+                
                 city_code = filename[0].upper()
                 city_name = city_map.get(city_code, '未知縣市')
                 df.insert(0, '縣市', city_name)
 
                 df.to_csv(output_file, index=False, encoding='utf-8-sig')
-                success_log.append(f"✅ 成功處理：{input_file}")
-                print(f"✅ 成功處理：{input_file}")
+                success_log.append(f"成功處理：{input_file}")
+                print(f"成功處理：{input_file}")
             except Exception as e:
-                error_log.append(f"❌ 失敗：{input_file} → {e}")
-                print(f"❌ 失敗：{input_file} → {e}")
+                error_log.append(f"失敗：{input_file} → {e}")
+                print(f"失敗：{input_file} → {e}")
 
-# 儲存紀錄
+
 os.makedirs(target_root, exist_ok=True)
 with open(os.path.join(target_root, "成功清單.txt"), "w", encoding="utf-8") as f:
     f.write("\n".join(success_log))
@@ -95,4 +95,4 @@ with open(os.path.join(target_root, "成功清單.txt"), "w", encoding="utf-8") 
 with open(os.path.join(target_root, "錯誤清單.txt"), "w", encoding="utf-8") as f:
     f.write("\n".join(error_log))
 
-print("\n🎉 所有檔案清洗作業完成！")
+print("\n所有檔案清洗作業完成！")

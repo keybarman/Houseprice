@@ -1,18 +1,15 @@
-# 104_salary_api_csv.py
-
 import os
 import time
 import random
 import requests
 import csv
 
-# --- 設定區 ---
 BASE_URL    = "https://guide.104.com.tw/salary/cat/"
 API_URL     = "https://www.104.com.tw/jobbank/api/salary/salary-guide"
 OUTPUT_DIR  = "104_salary_csvs_api"
 MAX_MAIN    = 18
 MAX_SUB     = 4
-# --- /設定區 ---
+
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -62,7 +59,6 @@ def main():
                 print("無資料")
             else:
                 out_path = os.path.join(OUTPUT_DIR, f"{code}.csv")
-                # 寫 CSV，指定 utf-8-sig (BOM)
                 with open(out_path, "w", encoding="utf-8-sig", newline="") as f:
                     writer = csv.DictWriter(f, fieldnames=[
                         "職務代碼", "職務", "月薪P25", "月薪P75", "月均薪", "職缺數"

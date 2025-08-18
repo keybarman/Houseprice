@@ -39,24 +39,22 @@ def calculate_labor_insurance(grade):
     base = max(grade, 11100)
     return math.ceil(base * 0.024)
 
-# 計算年薪
 salary_df["月薪資"]  = salary_df["中位數年薪"] / 12
 
-# 計算稅額
+
 salary_df["所得稅額"] = salary_df["中位數年薪"].apply(calculate_tax).round(0).astype(int)
 
-# 找出投保級距
 salary_df["投保級距"] = salary_df["月薪資"].apply(find_insurance_grade)
 
-# 計算健保與勞保費
+
 salary_df["健保費"] = salary_df["投保級距"].apply(calculate_health_insurance)
 salary_df["勞保費"] = salary_df["投保級距"].apply(calculate_labor_insurance)
 
-# 計算稅後年收入與月收入
+
 salary_df["可支配年所得"] = (
     salary_df["中位數年薪"] - salary_df["所得稅額"] - salary_df["最低生活費"] - (salary_df["健保費"] + salary_df["勞保費"]) * 12
 )
 salary_df["可支配月薪"] = (salary_df["可支配年所得"] / 12).round(0).astype(int)
 
-# 儲存結果為 CSV（可選）
+
 salary_df.to_csv("C:\\Project\\BI\\參考\\salary\\全國近五年所得比(中位數).csv", index=False, encoding='cp950')

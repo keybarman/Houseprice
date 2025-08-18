@@ -15,7 +15,6 @@ import aiohttp
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# 全域變數和鎖
 results_lock = Lock()
 print_lock = Lock()
 
@@ -28,7 +27,7 @@ class OptimizedScraper:
         self.processed_count = 0
         self.total_downloads = 0
         
-        # 預編譯正則表達式
+       
         self.title_pattern = re.compile(r'工業及服務業受僱員工全年總薪資中位數及分布統計結果')
         self.year_pattern = re.compile(r'(\d{2,3})年')
         self.filename_pattern = re.compile(r'[<>:"/\\|?*\s]+')
@@ -37,7 +36,7 @@ class OptimizedScraper:
         """創建優化的requests session"""
         session = requests.Session()
         
-        # 設定重試策略
+        
         retry_strategy = Retry(
             total=2,
             backoff_factor=0.1,
@@ -54,7 +53,7 @@ class OptimizedScraper:
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
-        # 優化的headers
+        
         session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -85,7 +84,7 @@ class OptimizedScraper:
         if not title_text:
             return False
         
-        # 移除所有空白字符進行比較
+        
         cleaned_title = ''.join(title_text.split())
         return bool(self.title_pattern.search(cleaned_title))
 
@@ -98,7 +97,7 @@ class OptimizedScraper:
         """快速版本的下載連結提取"""
         download_links = []
         
-        # 只搜索最重要的連結類型
+        
         selectors = [
             'a[href*="Upload"]',
             'a[href$=".pdf"]',
@@ -111,7 +110,7 @@ class OptimizedScraper:
         for selector in selectors:
             try:
                 links = soup.select(selector)
-                for link in links[:5]:  # 限制每種類型最多5個
+                for link in links[:5]:  
                     href = link.get('href')
                     if href and href not in seen_urls:
                         full_url = urljoin(base_url, href)
@@ -162,7 +161,7 @@ class OptimizedScraper:
                 
                 self.processed_count += 1
                 
-                # 每處理10個顯示進度
+                
                 if self.processed_count % 10 == 0:
                     self.print_progress(self.processed_count, self.total_ids, len(self.results))
         
@@ -173,19 +172,19 @@ class OptimizedScraper:
         url = base_url + str(sid)
         
         try:
-            # 更短的超時時間
+            
             resp = self.session.get(url, timeout=5)
             
             if resp.status_code != 200:
                 return False, None
             
-            # 使用lxml解析器（如果可用）更快
+            
             try:
                 soup = BeautifulSoup(resp.text, "lxml")
             except:
                 soup = BeautifulSoup(resp.text, "html.parser")
             
-            # 快速標題搜尋
+           
             title = self.find_title_fast(soup)
             
             if not title:
@@ -196,7 +195,7 @@ class OptimizedScraper:
             if self.is_target_title(title_text):
                 year = self.extract_year_from_title(title_text)
                 
-                # 快速獲取下載連結
+            
                 download_links = self.get_download_links_fast(soup, url)
                 
                 result = {
@@ -209,11 +208,11 @@ class OptimizedScraper:
                     "found_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
                 
-                # 線程安全地打印結果
+          
                 with print_lock:
-                    print(f"\n✅ 找到：ID {sid} ({year}年) - {len(download_links)} 個檔案")
+                    print(f"\n找到：ID {sid} ({year}年) - {len(download_links)} 個檔案")
                 
-                # 非同步下載檔案（可選）
+                
                 if download_links:
                     self.download_files_batch(download_links, year, download_folder)
                 
@@ -226,12 +225,12 @@ class OptimizedScraper:
 
     def find_title_fast(self, soup):
         """快速尋找標題"""
-        # 直接搜索包含關鍵字的文本
+        
         target_text = soup.find(string=lambda text: text and '工業及服務業受僱員工全年總薪資中位數及分布統計結果' in text)
         if target_text:
             return target_text.parent
         
-        # 備用搜索
+   
         for tag in ['h1', 'h2', 'h3']:
             title = soup.find(tag)
             if title:
@@ -244,10 +243,10 @@ class OptimizedScraper:
         year_folder = os.path.join(download_folder, f"{year}年")
         os.makedirs(year_folder, exist_ok=True)
         
-        # 使用較少的線程數避免被伺服器封鎖
+        
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             futures = []
-            for i, link in enumerate(download_links[:3]):  # 限制每個頁面最多下載3個檔案
+            for i, link in enumerate(download_links[:3]):  
                 file_extension = os.path.splitext(urlparse(link['url']).path)[1] or '.pdf'
                 safe_filename = self.create_safe_filename(link['text'], year)
                 filename = os.path.join(year_folder, f"{safe_filename}_{i+1}{file_extension}")
@@ -266,7 +265,7 @@ class OptimizedScraper:
     def create_safe_filename(self, text, year=""):
         """創建安全的檔名（優化版）"""
         safe_chars = self.filename_pattern.sub('_', text)
-        safe_chars = safe_chars[:50]  # 限制長度
+        safe_chars = safe_chars[:50] 
         
         if year:
             return f"{year}年_{safe_chars}"
@@ -295,11 +294,11 @@ class OptimizedScraper:
         self.total_downloads = 0
         self.total_ids = end_id - start_id
         
-        # 創建下載資料夾
+       
         download_folder = f"薪資統計下載_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         os.makedirs(download_folder, exist_ok=True)
         
-        print(f"🚀 開始高速爬取薪資新聞稿...")
+        print(f"開始高速爬取薪資新聞稿...")
         print(f"範圍: {start_id} - {end_id} (共 {self.total_ids} 個ID)")
         print(f"批次大小: {self.batch_size}, 最大線程數: {self.max_workers}")
         print(f"下載資料夾: {download_folder}")
@@ -308,7 +307,7 @@ class OptimizedScraper:
         
         start_time = time.time()
         
-        # 分批處理
+        
         all_ids = list(range(start_id, end_id))
         
         for i in range(0, len(all_ids), self.batch_size):
@@ -318,17 +317,17 @@ class OptimizedScraper:
             with results_lock:
                 self.results.extend(batch_results)
             
-            # 每批次後顯示狀態
+            
             if i % (self.batch_size * 4) == 0:
                 elapsed = time.time() - start_time
                 speed = self.processed_count / elapsed if elapsed > 0 else 0
                 with print_lock:
-                    print(f"\n📊 已處理 {self.processed_count}/{self.total_ids} | 速度: {speed:.1f} 頁/秒 | 找到: {len(self.results)} 筆")
+                    print(f"\n已處理 {self.processed_count}/{self.total_ids} | 速度: {speed:.1f} 頁/秒 | 找到: {len(self.results)} 筆")
         
         elapsed_time = time.time() - start_time
         
         print("\n" + "=" * 80)
-        print(f"🎉 爬取完成！")
+        print(f"爬取完成！")
         print(f"總共處理: {self.processed_count} 個ID")
         print(f"找到符合條件: {len(self.results)} 筆")
         print(f"總下載檔案: {self.total_downloads} 個")
@@ -341,10 +340,10 @@ class OptimizedScraper:
 def save_results(results, download_folder):
     """儲存結果到CSV"""
     if not results:
-        print("❌ 沒有找到符合條件的資料")
+        print("沒有找到符合條件的資料")
         return
     
-    # 準備CSV資料
+    
     csv_data = []
     for result in results:
         base_info = {
@@ -372,25 +371,25 @@ def save_results(results, download_folder):
     filename = os.path.join(download_folder, "薪資統計清單.csv")
     df.to_csv(filename, index=False, encoding="utf-8-sig")
     
-    print(f"✅ 已儲存清單到: {filename}")
-    print("\n📋 找到的資料:")
+    print(f"儲存清單到: {filename}")
+    print("\n找到的資料:")
     for i, result in enumerate(results, 1):
         print(f"{i}. {result['year']}年 - {result['download_count']} 個檔案")
 
 if __name__ == "__main__":
     try:
-        # 創建優化的爬蟲實例
+        
         scraper = OptimizedScraper(max_workers=20, batch_size=100)
         
-        # 開始爬取
+        
         results, download_folder = scraper.scrape_salary_news(start_id=230000, end_id=235000)
         
-        # 儲存結果
+        
         save_results(results, download_folder)
         
     except KeyboardInterrupt:
-        print("\n\n⏹️  程式被使用者中斷")
+        print("\n\n程式被使用者中斷")
     except Exception as e:
-        print(f"\n\n❌ 程式執行錯誤: {e}")
+        print(f"\n\n程式執行錯誤: {e}")
         import traceback
         traceback.print_exc()

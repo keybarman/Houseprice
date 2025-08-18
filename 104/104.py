@@ -16,7 +16,7 @@ class Job104SalaryScraper:
         self.setup_driver()
         self.all_salary_data = []
         
-        # 定義18個主要職業類別和其子分類
+        
         self.job_categories = {
             '2001': ['經營／幕僚類人員', '人力資源類人員', '行政／總務／法務類人員', '財會／金融專業人員'],
             '2002': ['行政／總務／法務', '人力資源', '經營幕僚', '專案管理'],
@@ -41,14 +41,14 @@ class Job104SalaryScraper:
     def setup_driver(self):
         """設置Chrome瀏覽器驅動"""
         chrome_options = Options()
-        chrome_options.add_argument('--headless')  # 無頭模式
+        chrome_options.add_argument('--headless')  
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         
-        # 減少系統日誌訊息
+
         chrome_options.add_argument('--disable-logging')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--disable-software-rasterizer')
@@ -57,19 +57,19 @@ class Job104SalaryScraper:
         chrome_options.add_argument('--disable-renderer-backgrounding')
         chrome_options.add_argument('--disable-features=TranslateUI')
         chrome_options.add_argument('--disable-ipc-flooding-protection')
-        chrome_options.add_argument('--log-level=3')  # 只顯示嚴重錯誤
+        chrome_options.add_argument('--log-level=3')  
         
-        # 添加User-Agent來模擬真實瀏覽器
+
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
         
-        # 指定ChromeDriver的完整路徑 (推薦方式)
+
         chromedriver_path = r"C:\chromedriver\chromedriver.exe"
         service = Service(chromedriver_path)
         
         try:
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
         except:
-            # 如果新方式失敗，回退到舊方式
+
             print("嘗試使用舊版Selenium語法...")
             self.driver = webdriver.Chrome(executable_path=chromedriver_path, options=chrome_options)
         
@@ -81,7 +81,7 @@ class Job104SalaryScraper:
     
     def scrape_salary_data(self, category_code, subcategory_index=1):
         """爬取特定類別的薪資資料"""
-        # 構建正確的10位數URL格式：主類別(4位) + 子類別(3位) + 細項(3位)
+
         full_code = f"{category_code}{subcategory_index:03d}000"
         url = f"https://guide.104.com.tw/salary/cat/{full_code}"
         
@@ -91,18 +91,17 @@ class Job104SalaryScraper:
             self.driver.get(url)
             self.random_delay(2, 4)
             
-            # 等待頁面載入完成
+
             WebDriverWait(self.driver, 15).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "salary-table"))
             )
-            
-            # 尋找薪資表格
+
             salary_table = self.driver.find_element(By.CLASS_NAME, "salary-table")
             rows = salary_table.find_elements(By.TAG_NAME, "tr")
             
             category_data = []
             
-            for row in rows[1:]:  # 跳過表頭
+            for row in rows[1:]:  
                 try:
                     cells = row.find_elements(By.TAG_NAME, "td")
                     if len(cells) >= 5:
@@ -144,12 +143,11 @@ class Job104SalaryScraper:
         for category_code, subcategories in self.job_categories.items():
             print(f"\n正在處理類別: {category_code}")
             
-            # 爬取子分類 (001, 002, 003, 004)
-            # 注意：不爬取主分類000，因為通常子分類包含更詳細的資料
+            
             for i in range(1, min(5, len(subcategories) + 1)):
                 subcategory_data = self.scrape_salary_data(category_code, i)
                 self.all_salary_data.extend(subcategory_data)
-                self.random_delay(1, 2)  # 每個子分類之間的延遲
+                self.random_delay(1, 2) 
         
         print(f"\n總共爬取了 {len(self.all_salary_data)} 筆薪資資料")
     
@@ -172,13 +170,13 @@ def main():
     scraper = Job104SalaryScraper()
     
     try:
-        # 爬取所有類別的資料
+
         scraper.scrape_all_categories()
         
-        # 儲存資料
+
         scraper.save_to_csv()
         
-        # 顯示部分結果
+
         if scraper.all_salary_data:
             print("\n前10筆資料預覽:")
             df = pd.DataFrame(scraper.all_salary_data[:10])
@@ -192,7 +190,7 @@ def main():
         scraper.close()
 
 if __name__ == "__main__":
-    # 安裝必要套件
+
     print("請先安裝必要套件:")
     print("pip install selenium pandas beautifulsoup4 requests")
     print("並下載ChromeDriver: https://chromedriver.chromium.org/")

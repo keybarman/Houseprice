@@ -35,7 +35,7 @@ chrome_options = Options()
 chrome_options.add_argument('--headless=new')
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--window-size=1280,800')
-chrome_options.add_argument('--disable-blink-features=AutomationControlled')  # 增加防偵測
+chrome_options.add_argument('--disable-blink-features=AutomationControlled')  
 chrome_options.add_argument("--lang=zh-TW")
 chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36')
 
@@ -54,15 +54,13 @@ for cat1, folder in cat1_list:
             print(f"正在爬取 {url}")
             try:
                 driver.get(url)
-                time.sleep(random.uniform(1.5, 3.5))  # 等頁面與JS跑完
+                time.sleep(random.uniform(1.5, 3.5))  
                 soup = BeautifulSoup(driver.page_source, 'html.parser')
-                # 取得職業類別
                 job_span = soup.select_one('div.descJobSalary span')
                 job_category = job_span.text.strip() if job_span else None
                 if not job_category:
                     print(f"查無職業類別，跳過 {code}")
                     continue
-                # 取得表格
                 table = soup.find('table', class_='salaryCompareTable')
                 if table:
                     rows = table.find_all('tr')
@@ -84,7 +82,7 @@ for cat1, folder in cat1_list:
                 else:
                     print(f"找不到表格，跳過 {code}")
                 count += 1
-                # 每20頁長休息
+
                 if count % 20 == 0:
                     sleep_long = random.uniform(30, 90)
                     print(f"\n--- 已爬{count}頁，長休息 {sleep_long:.2f} 秒 ---\n")
